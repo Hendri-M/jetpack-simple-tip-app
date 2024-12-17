@@ -1,22 +1,20 @@
 package com.tutor.jettipapp
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -31,7 +29,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.tutor.jettipapp.components.InputField
 import com.tutor.jettipapp.ui.theme.JetTipAppTheme
 
@@ -61,7 +58,7 @@ fun MyApp(content: @Composable () -> Unit) {
 
 @Preview
 @Composable
-fun TopHeader (totalAmount: Double = 254.0) {
+fun TopHeader(totalAmount: Double = 254.0) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -78,8 +75,16 @@ fun TopHeader (totalAmount: Double = 254.0) {
             /* TODO:  Format Value */
             val value = "%.2f".format(totalAmount)
             /* END OF TODO */
-            Text(text = "Total Per Person", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-            Text(text = "$$value", style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.ExtraBold)
+            Text(
+                text = "Total Per Person",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = "$$value",
+                style = MaterialTheme.typography.displaySmall,
+                fontWeight = FontWeight.ExtraBold
+            )
         }
     }
 }
@@ -87,6 +92,13 @@ fun TopHeader (totalAmount: Double = 254.0) {
 @Preview
 @Composable
 fun MainContent() {
+    BillForm() {
+        billAmt -> Log.d("AMT", "Debugging Amount: $billAmt")
+    }
+}
+
+@Composable
+fun BillForm(modifier: Modifier = Modifier, onValChange: (String) -> Unit = {}) {
     val totalBillState = remember {
         mutableStateOf("")
     }
@@ -94,18 +106,33 @@ fun MainContent() {
         totalBillState.value.trim().isNotEmpty()
     }
     val keyboardController = LocalSoftwareKeyboardController.current
-    Surface(modifier = Modifier
-        .padding(4.dp)
-        .fillMaxWidth(),
+    Surface(
+        modifier = Modifier
+            .padding(4.dp)
+            .fillMaxWidth(),
         shape = RoundedCornerShape(corner = CornerSize(8.dp)),
         border = BorderStroke(2.dp, Color.LightGray)
     ) {
         Column(modifier = Modifier.padding(4.dp)) {
-            InputField(valueState = totalBillState, labelId = "Enter Bill", enabled = true, isSingleLine = true, onAction = KeyboardActions{
-                if(!validState) return@KeyboardActions
-                // TODO - OnValueChange
-                keyboardController?.hide()
-            } )
+            InputField(
+                valueState = totalBillState,
+                labelId = "Enter Bill",
+                enabled = true,
+                isSingleLine = true,
+                onAction = KeyboardActions {
+                    if (!validState) return@KeyboardActions
+                    // TODO - OnValueChange
+                    onValChange(totalBillState.value.trim())
+                    keyboardController?.hide()
+                })
+
+            if(validState) {
+                Row(modifier =Modifier, horizontalArrangement = Arrangement.Start) {
+                    Text(text = "Hello")
+                }
+            } else {
+                Box(){}
+            }
         }
     }
 }
